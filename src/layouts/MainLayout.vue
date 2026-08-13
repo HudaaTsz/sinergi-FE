@@ -63,7 +63,10 @@
           <div class="p-3 border-t border-gray-200/70 dark:border-slate-700/70">
             <p class="text-sm font-semibold dark:text-slate-100 truncate">{{ auth.user?.nama }}</p>
             <p class="text-xs text-gray-500 dark:text-slate-400 truncate mb-2">{{ auth.roles.join(', ') }}</p>
-            <button @click="doLogout" class="text-xs text-red-600 dark:text-red-400 hover:underline">Keluar</button>
+            <div class="flex items-center gap-3">
+              <button @click="showChangePassword = true; mobileMenuOpen = false" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Ubah Password</button>
+              <button @click="doLogout" class="text-xs text-red-600 dark:text-red-400 hover:underline">Keluar</button>
+            </div>
           </div>
         </nav>
       </Transition>
@@ -104,7 +107,10 @@
             {{ theme.dark ? '☀️' : '🌙' }}
           </button>
         </div>
-        <button @click="doLogout" class="text-xs text-red-600 dark:text-red-400 hover:underline">Keluar</button>
+        <div class="flex items-center justify-between">
+          <button @click="doLogout" class="text-xs text-red-600 dark:text-red-400 hover:underline">Keluar</button>
+          <button @click="showChangePassword = true" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Ubah Password</button>
+        </div>
       </div>
     </aside>
 
@@ -119,6 +125,8 @@
 
     <!-- AI Assistant: logo mengambang di kanan bawah, tampil di semua halaman -->
     <AiFloatingWidget />
+
+    <ChangePasswordModal :show="showChangePassword" @close="showChangePassword = false" />
   </div>
 </template>
 
@@ -128,6 +136,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 import AiFloatingWidget from '../components/AiFloatingWidget.vue'
+import ChangePasswordModal from '../components/ChangePasswordModal.vue'
 
 const auth = useAuthStore()
 const theme = useThemeStore()
@@ -135,6 +144,7 @@ const router = useRouter()
 const route = useRoute()
 
 const mobileMenuOpen = ref(false)
+const showChangePassword = ref(false)
 
 const allMenu = [
   { to: '/', name: 'dashboard', icon: '📊', label: 'Dashboard', roles: null },

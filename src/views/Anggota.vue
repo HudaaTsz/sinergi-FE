@@ -10,7 +10,7 @@
           <table class="w-full text-sm">
             <thead class="bg-gray-50 dark:bg-slate-700/50">
               <tr class="text-left text-gray-500 dark:text-slate-400">
-                <th class="p-3">Nama</th><th>Jabatan</th><th>Divisi</th><th>Status</th><th>QR</th>
+                <th class="p-3">Nama</th><th>Jabatan</th><th>Divisi</th><th>Status</th><th>QR</th><th>Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -28,6 +28,9 @@
                 </td>
                 <td>
                   <qrcode-vue :value="a.nomor_anggota || String(a.id)" :size="48" />
+                </td>
+                <td>
+                  <button @click="bukaResetPassword(a)" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">Reset Password</button>
                 </td>
               </tr>
             </tbody>
@@ -47,6 +50,7 @@
                     : 'bg-gray-200 text-gray-600 dark:bg-slate-700 dark:text-slate-400'">
                   {{ a.status_keanggotaan }}
                 </span>
+                <button @click="bukaResetPassword(a)" class="block text-xs text-primary-600 dark:text-primary-400 hover:underline mt-2">Reset Password</button>
               </div>
               <qrcode-vue :value="a.nomor_anggota || String(a.id)" :size="44" class="flex-shrink-0" />
             </div>
@@ -128,6 +132,28 @@
       </form>
     </div>
   </div>
+
+  <!-- Modal: Reset Password (Akun Intern) -->
+    <div v-if="showResetPassword" class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <form @submit.prevent="submitResetPassword" class="bg-white dark:bg-slate-800 rounded-xl p-5 sm:p-6 w-full max-w-sm space-y-3">
+        <h2 class="font-semibold text-lg dark:text-slate-100">Reset Password</h2>
+        <p class="text-sm text-gray-500 dark:text-slate-400">{{ internDipilih?.nama }}</p>
+        <div>
+          <label class="text-xs text-gray-500 dark:text-slate-400">Password Baru</label>
+          <input v-model="formResetPassword.new_password" type="password" required minlength="8"
+            class="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2" />
+        </div>
+        <p v-if="errorResetPassword" class="text-sm text-rose-600 dark:text-rose-400">{{ errorResetPassword }}</p>
+        <p v-if="successResetPassword" class="text-sm text-emerald-600 dark:text-emerald-400">{{ successResetPassword }}</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" @click="showResetPassword = false" class="px-4 py-2 text-sm dark:text-slate-300">Tutup</button>
+          <button type="submit" :disabled="submittingResetPassword"
+            class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50">
+            {{ submittingResetPassword ? 'Menyimpan...' : 'Reset' }}
+          </button>
+        </div>
+      </form>
+    </div>
 </template>
 
 <script setup>
@@ -145,6 +171,36 @@ const isSuperAdmin = computed(() => {
     return false
   }
 })
+
+const showResetPassword = ref(false)
+const internDipilih = ref(null)
+const formResetPassword = ref({ new_password: '' })
+const submittingResetPassword = ref(false)
+const errorResetPassword = ref('')
+const successResetPassword = ref('')
+
+function bukaResetPassword(a) {
+  internDipilih.value = a
+  formResetPassword.value = { new_password: '' }
+  errorResetPassword.value = ''
+  successResetPassword.value = ''
+  showResetPassword.value = true
+}
+
+async function submitResetPassword() {
+  submittingResetPassword.value = true
+  errorResetPassword.value = ''
+  successResetPassword.value = ''
+  try {
+    await api.post(`/anggota/${internDipilih.value.id}/reset-password`, formResetPassword.value)
+    successResetPassword.value = 'Password berhasil direset.'
+  } catch (e) {
+    const errors = e.response?.data?.errors
+    errorResetPassword.value = errors ? Object.values(errors).flat().join(' ') : 'Gagal mereset password.'
+  } finally {
+    submittingResetPassword.value = false
+  }
+}
 
 const anggotaIntern = ref([])
 const anggotaExtern = ref([])

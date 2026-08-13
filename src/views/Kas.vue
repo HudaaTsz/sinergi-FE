@@ -20,13 +20,14 @@
           <tr v-if="!transaksi.length">
             <td colspan="6" class="p-6 text-center text-gray-400 dark:text-slate-500">Belum ada transaksi.</td>
           </tr>
-          <tr v-for="t in transaksi" :key="t.id" class="border-t border-gray-100 dark:border-slate-700 dark:text-slate-200">
+          <tr v-for="t in transaksi" :key="t.id" @click="detailDipilih = t"
+            class="border-t border-gray-100 dark:border-slate-700 dark:text-slate-200 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700/40">
             <td class="p-3">{{ t.kode }}</td>
             <td class="capitalize">{{ t.jenis }}</td>
             <td>{{ t.kategori?.nama }}</td>
             <td>Rp{{ Number(t.jumlah).toLocaleString('id-ID') }}</td>
             <td><span class="px-2 py-1 rounded-full text-xs bg-gray-100 dark:bg-slate-700 dark:text-slate-300">{{ t.status }}</span></td>
-            <td class="space-x-2 whitespace-nowrap">
+            <td class="space-x-2 whitespace-nowrap" @click.stop>
               <button v-if="t.status === 'menunggu_ketua' && auth.hasRole('Ketua', 'Super Admin')"
                 @click="approveKetua(t)" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline">Setujui (Ketua)</button>
               <button v-if="t.status === 'menunggu_bendahara' && auth.hasRole('Bendahara', 'Super Admin')"
@@ -42,8 +43,8 @@
       <p v-if="!transaksi.length" class="text-sm text-gray-400 dark:text-slate-500 text-center py-8">
         Belum ada transaksi.
       </p>
-      <div v-for="t in transaksi" :key="t.id"
-        class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
+      <div v-for="t in transaksi" :key="t.id" @click="detailDipilih = t"
+        class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer active:bg-gray-50 dark:active:bg-slate-700/40">
         <div class="flex justify-between items-start gap-2">
           <div class="min-w-0">
             <p class="font-medium dark:text-slate-100 truncate">{{ t.kode }}</p>
@@ -53,7 +54,7 @@
         </div>
         <p class="text-sm font-semibold mt-2 dark:text-slate-100">Rp{{ Number(t.jumlah).toLocaleString('id-ID') }}</p>
 
-        <div class="mt-2 pt-2 border-t border-gray-100 dark:border-slate-700 space-x-3" v-if="tampilkanAksi(t)">
+        <div class="mt-2 pt-2 border-t border-gray-100 dark:border-slate-700 space-x-3" v-if="tampilkanAksi(t)" @click.stop>
           <button v-if="t.status === 'menunggu_ketua' && auth.hasRole('Ketua', 'Super Admin')"
             @click="approveKetua(t)" class="text-xs text-emerald-600 dark:text-emerald-400 hover:underline">Setujui (Ketua)</button>
           <button v-if="t.status === 'menunggu_bendahara' && auth.hasRole('Bendahara', 'Super Admin')"
@@ -88,16 +89,8 @@
         </div>
 
         <div>
-          <div class="flex items-center justify-between">
-            <label class="text-xs text-gray-500 dark:text-slate-400">Kategori</label>
-            <button type="button" @click="bukaModalKategori" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">
-              + Kategori Baru
-            </button>
-          </div>
-          <select v-model="form.kategori_id" required class="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2">
-            <option value="" disabled>Pilih kategori</option>
-            <option v-for="k in kategoriList" :key="k.id" :value="k.id">{{ k.nama }}</option>
-          </select>
+          <label class="text-xs text-gray-500 dark:text-slate-400">Kategori</label>
+          <KategoriSelect v-model="form.kategori_id" :items="kategoriList" @tambah-baru="showModalKategori = true" />
         </div>
 
         <div>
@@ -132,6 +125,8 @@
       @close="showModalKategori = false"
       @created="onKategoriDibuat"
     />
+
+    <TransaksiDetailModal :transaksi="detailDipilih" @close="detailDipilih = null" />
   </div>
 </template>
 
@@ -140,6 +135,8 @@ import { ref, onMounted } from 'vue'
 import api from '../api/axios'
 import { useAuthStore } from '../stores/auth'
 import TambahKategoriModal from '../components/TambahKategoriModal.vue'
+import KategoriSelect from '../components/KategoriSelect.vue'
+import TransaksiDetailModal from '../components/TransaksiDetailModal.vue'
 
 const auth = useAuthStore()
 const transaksi = ref([])
@@ -150,6 +147,7 @@ const submitting = ref(false)
 const submitError = ref('')
 const masterDataError = ref('')
 const showModalKategori = ref(false)
+const detailDipilih = ref(null)
 
 const emptyForm = () => ({ jenis: 'pengeluaran', jumlah: '', deskripsi: '', dompet_kas_id: '', kategori_id: '' })
 const form = ref(emptyForm())
@@ -187,10 +185,6 @@ function bukaForm() {
   submitError.value = ''
   showForm.value = true
   if (!dompetList.value.length || !kategoriList.value.length) loadMasterData()
-}
-
-function bukaModalKategori() {
-  showModalKategori.value = true
 }
 
 function onKategoriDibuat(kategoriBaru) {

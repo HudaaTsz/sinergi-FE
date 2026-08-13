@@ -101,12 +101,15 @@
 
         <div>
           <label class="text-xs text-gray-500 dark:text-slate-400">Kategori</label>
-          <select v-model="formCairkan.kategori_id" required
-            class="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2">
-            <option value="" disabled>Pilih kategori</option>
-            <option v-for="k in kategoriKasList" :key="k.id" :value="k.id">{{ k.nama }}</option>
-          </select>
+          <KategoriSelect v-model="formCairkan.kategori_id" :items="kategoriKasList" @tambah-baru="showModalKategori = true" />
         </div>
+
+        <TambahKategoriModal
+          :show="showModalKategori"
+          tipe-default="pengeluaran"
+          @close="showModalKategori = false"
+          @created="onKategoriDibuat"
+        />
 
         <p v-if="errorCairkan" class="text-sm text-rose-600 dark:text-rose-400">{{ errorCairkan }}</p>
 
@@ -126,6 +129,8 @@
 import { ref, onMounted } from 'vue'
 import api from '../api/axios'
 import { useAuthStore } from '../stores/auth'
+import KategoriSelect from '../components/KategoriSelect.vue'
+import TambahKategoriModal from '../components/TambahKategoriModal.vue'
 
 const auth = useAuthStore()
 const daftar = ref([])
@@ -142,6 +147,7 @@ const pengajuanDipilih = ref(null)
 const formCairkan = ref({ dompet_kas_id: '', kategori_id: '' })
 const submittingCairkan = ref(false)
 const errorCairkan = ref('')
+const showModalKategori = ref(false)
 
 function labelStatus(status) {
   const map = {
@@ -208,6 +214,11 @@ function bukaModalCairkan(p) {
 function tutupModalCairkan() {
   showModalCairkan.value = false
   pengajuanDipilih.value = null
+}
+
+function onKategoriDibuat(kategoriBaru) {
+  kategoriKasList.value.push(kategoriBaru)
+  formCairkan.value.kategori_id = kategoriBaru.id
 }
 
 async function submitCairkan() {
