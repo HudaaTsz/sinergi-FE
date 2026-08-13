@@ -3,11 +3,9 @@
     <!-- ===== AKUN INTERN (khusus Super Admin) ===== -->
     <div v-if="isSuperAdmin">
       <h1 class="text-xl sm:text-2xl font-bold mb-4 dark:text-slate-100">Akun Intern</h1>
-
       <div v-if="loadingIntern" class="text-sm text-gray-400 dark:text-slate-500 py-4">Memuat...</div>
 
       <div v-else>
-        <!-- Tampilan tabel (desktop/tablet ke atas) -->
         <div class="hidden sm:block bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-50 dark:bg-slate-700/50">
@@ -36,7 +34,6 @@
           </table>
         </div>
 
-        <!-- Tampilan kartu (mobile) -->
         <div class="sm:hidden space-y-3">
           <div v-for="a in anggotaIntern" :key="a.id"
             class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-4">
@@ -63,15 +60,20 @@
 
     <!-- ===== AKUN EXTERN (semua role login bisa lihat) ===== -->
     <div>
-      <h1 class="text-xl sm:text-2xl font-bold mb-4 dark:text-slate-100">
-        {{ isSuperAdmin ? 'Akun Extern' : 'Anggota' }}
-      </h1>
+      <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+        <h1 class="text-xl sm:text-2xl font-bold dark:text-slate-100">
+          {{ isSuperAdmin ? 'Akun Extern' : 'Anggota' }}
+        </h1>
+        <button v-if="auth.hasRole('Bendahara', 'Super Admin')" @click="showTambahAnggota = true"
+          class="bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg text-xs sm:text-sm transition-colors">
+          + Tambah Anggota
+        </button>
+      </div>
 
       <div v-if="loadingExtern" class="text-sm text-gray-400 dark:text-slate-500 py-4">Memuat...</div>
       <div v-else-if="errorExtern" class="text-sm text-rose-600 dark:text-rose-400 py-4">{{ errorExtern }}</div>
 
       <div v-else>
-        <!-- Tampilan tabel (desktop/tablet ke atas) -->
         <div class="hidden sm:block bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-50 dark:bg-slate-700/50">
@@ -88,7 +90,6 @@
           </table>
         </div>
 
-        <!-- Tampilan kartu (mobile) -->
         <div class="sm:hidden space-y-2">
           <div v-for="a in anggotaExtern" :key="a.id"
             class="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 flex justify-between items-center">
@@ -100,6 +101,31 @@
           </p>
         </div>
       </div>
+    </div>
+
+    <!-- Modal: Tambah Anggota -->
+    <div v-if="showTambahAnggota" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <form @submit.prevent="submitTambahAnggota" class="bg-white dark:bg-slate-800 rounded-xl p-5 sm:p-6 w-full max-w-sm space-y-3">
+        <h2 class="font-semibold text-lg dark:text-slate-100">Tambah Anggota</h2>
+        <div>
+          <label class="text-xs text-gray-500 dark:text-slate-400">Nama Anggota</label>
+          <input v-model="formAnggota.nama" required placeholder="Nama lengkap"
+            class="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2" />
+        </div>
+        <div>
+          <label class="text-xs text-gray-500 dark:text-slate-400">RT</label>
+          <input v-model="formAnggota.rt" required placeholder="Misal: 03"
+            class="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2" />
+        </div>
+        <p v-if="errorAnggota" class="text-sm text-rose-600 dark:text-rose-400">{{ errorAnggota }}</p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" @click="showTambahAnggota = false" class="px-4 py-2 text-sm dark:text-slate-300">Batal</button>
+          <button type="submit" :disabled="submittingAnggota"
+            class="bg-primary-600 text-white px-4 py-2 rounded-lg text-sm disabled:opacity-50">
+            {{ submittingAnggota ? 'Menyimpan...' : 'Simpan' }}
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -126,6 +152,11 @@ const loadingIntern = ref(false)
 const loadingExtern = ref(false)
 const errorExtern = ref('')
 
+const showTambahAnggota = ref(false)
+const formAnggota = ref({ nama: '', rt: '' })
+const submittingAnggota = ref(false)
+const errorAnggota = ref('')
+
 async function loadIntern() {
   if (!isSuperAdmin.value) return
   loadingIntern.value = true
@@ -150,6 +181,22 @@ async function loadExtern() {
     console.error('Gagal memuat Akun Extern:', e)
   } finally {
     loadingExtern.value = false
+  }
+}
+
+async function submitTambahAnggota() {
+  submittingAnggota.value = true
+  errorAnggota.value = ''
+  try {
+    await api.post('/anggota-iuran', formAnggota.value)
+    showTambahAnggota.value = false
+    formAnggota.value = { nama: '', rt: '' }
+    await loadExtern()
+  } catch (e) {
+    const errors = e.response?.data?.errors
+    errorAnggota.value = errors ? Object.values(errors).flat().join(' ') : 'Gagal menambahkan anggota.'
+  } finally {
+    submittingAnggota.value = false
   }
 }
 

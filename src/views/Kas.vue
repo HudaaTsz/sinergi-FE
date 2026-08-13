@@ -2,7 +2,8 @@
   <div>
     <div class="flex justify-between items-center mb-6 flex-wrap gap-2">
       <h1 class="text-xl sm:text-2xl font-bold dark:text-slate-100">Kas Organisasi</h1>
-      <button @click="bukaForm" class="bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors">
+      <button v-if="auth.hasRole('Ketua', 'Bendahara', 'Super Admin')" @click="bukaForm"
+        class="bg-primary-600 hover:bg-primary-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm transition-colors">
         + Transaksi Baru
       </button>
     </div>
@@ -87,7 +88,12 @@
         </div>
 
         <div>
-          <label class="text-xs text-gray-500 dark:text-slate-400">Kategori</label>
+          <div class="flex items-center justify-between">
+            <label class="text-xs text-gray-500 dark:text-slate-400">Kategori</label>
+            <button type="button" @click="bukaModalKategori" class="text-xs text-primary-600 dark:text-primary-400 hover:underline">
+              + Kategori Baru
+            </button>
+          </div>
           <select v-model="form.kategori_id" required class="w-full border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-2">
             <option value="" disabled>Pilih kategori</option>
             <option v-for="k in kategoriList" :key="k.id" :value="k.id">{{ k.nama }}</option>
@@ -119,6 +125,13 @@
         </div>
       </form>
     </div>
+
+    <TambahKategoriModal
+      :show="showModalKategori"
+      :tipe-default="form.jenis"
+      @close="showModalKategori = false"
+      @created="onKategoriDibuat"
+    />
   </div>
 </template>
 
@@ -126,6 +139,7 @@
 import { ref, onMounted } from 'vue'
 import api from '../api/axios'
 import { useAuthStore } from '../stores/auth'
+import TambahKategoriModal from '../components/TambahKategoriModal.vue'
 
 const auth = useAuthStore()
 const transaksi = ref([])
@@ -135,6 +149,7 @@ const showForm = ref(false)
 const submitting = ref(false)
 const submitError = ref('')
 const masterDataError = ref('')
+const showModalKategori = ref(false)
 
 const emptyForm = () => ({ jenis: 'pengeluaran', jumlah: '', deskripsi: '', dompet_kas_id: '', kategori_id: '' })
 const form = ref(emptyForm())
@@ -159,8 +174,8 @@ async function loadMasterData() {
     dompetList.value = dompetRes.data
     kategoriList.value = kategoriRes.data
 
-    if (!dompetList.value.length || !kategoriList.value.length) {
-      masterDataError.value = 'Data dompet/kategori kas kosong. Jalankan "php artisan db:seed --class=MasterDataSeeder" di backend.'
+    if (!dompetList.value.length) {
+      masterDataError.value = 'Data dompet kas kosong. Jalankan "php artisan db:seed --class=MasterDataSeeder" di backend.'
     }
   } catch (e) {
     masterDataError.value = 'Gagal memuat data dompet/kategori kas.'
@@ -172,6 +187,15 @@ function bukaForm() {
   submitError.value = ''
   showForm.value = true
   if (!dompetList.value.length || !kategoriList.value.length) loadMasterData()
+}
+
+function bukaModalKategori() {
+  showModalKategori.value = true
+}
+
+function onKategoriDibuat(kategoriBaru) {
+  kategoriList.value.push(kategoriBaru)
+  form.value.kategori_id = kategoriBaru.id
 }
 
 async function submitTransaksi() {

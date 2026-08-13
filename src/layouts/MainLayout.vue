@@ -4,7 +4,7 @@
     <div class="md:hidden px-3 pt-3 flex-shrink-0 relative">
       <header class="flex items-center justify-between px-4 py-2.5 rounded-2xl
         bg-slate-100/90 dark:bg-slate-800/90 backdrop-blur border border-gray-200/70 dark:border-slate-700/70 shadow-sm relative z-20">
-        <h1 class="text-base font-bold text-primary-600 dark:text-primary-400">SINERGI</h1>
+        <h1 class="text-base font-bold text-primary-600 dark:text-primary-400">Wadasable</h1>
         <div class="flex items-center gap-1.5">
           <button
             @click="theme.toggle()"
@@ -72,7 +72,7 @@
     <!-- ===== Sidebar (desktop/tablet only) ===== -->
     <aside class="hidden md:flex md:w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex-col transition-colors flex-shrink-0">
       <div class="p-5 border-b border-gray-200 dark:border-slate-700">
-        <h1 class="text-xl font-bold text-primary-600 dark:text-primary-400">SINERGI</h1>
+        <h1 class="text-xl font-bold text-primary-600 dark:text-primary-400">Wadasable</h1>
         <p class="text-xs text-gray-500 dark:text-slate-400">Sistem Informasi Organisasi</p>
       </div>
 

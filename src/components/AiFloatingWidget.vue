@@ -18,7 +18,7 @@
           <div class="flex items-center gap-2">
             <span class="text-lg">🤖</span>
             <div>
-              <p class="text-sm font-semibold leading-tight">SINERGI AI</p>
+              <p class="text-sm font-semibold leading-tight">WADASABLE AI</p>
               <p class="text-[11px] text-primary-100 leading-tight">Siap membantu</p>
             </div>
           </div>
@@ -39,7 +39,7 @@
             </div>
             <p v-if="m.sumber?.length" class="text-[10px] text-gray-400 dark:text-slate-500 mt-0.5">Sumber: {{ m.sumber.join(', ') }}</p>
           </div>
-          <p v-if="chat.loading" class="text-xs text-gray-400 dark:text-slate-500 px-1">SINERGI AI sedang mengetik...</p>
+          <p v-if="chat.loading" class="text-xs text-gray-400 dark:text-slate-500 px-1">WADASABLE AI sedang mengetik...</p>
         </div>
 
         <!-- Contoh pertanyaan (hanya tampil kalau chat masih kosong/awal) -->
@@ -66,7 +66,7 @@
       class="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-white text-xl sm:text-2xl
         shadow-lg shadow-primary-600/40 flex items-center justify-center hover:scale-105 active:scale-95
         transition-transform relative flex-shrink-0"
-      title="SINERGI AI Assistant"
+      title="WADASABLE AI Assistant"
     >
       {{ expanded ? '✕' : '🤖' }}
       <span v-if="!expanded" class="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white dark:border-slate-900"></span>

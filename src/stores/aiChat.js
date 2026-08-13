@@ -4,7 +4,7 @@ import api from '../api/axios'
 export const useAiChatStore = defineStore('aiChat', {
   state: () => ({
     messages: [
-      { role: 'ai', text: 'Halo! Saya SINERGI AI. Ada yang bisa saya bantu seputar keuangan atau prosedur organisasi?' },
+      { role: 'ai', text: 'Halo! Saya WADASABLE AI. Ada yang bisa saya bantu seputar keuangan atau prosedur organisasi?' },
     ],
     loading: false,
   }),
@@ -24,7 +24,7 @@ export const useAiChatStore = defineStore('aiChat', {
     },
     reset() {
       this.messages = [
-        { role: 'ai', text: 'Halo! Saya SINERGI AI. Ada yang bisa saya bantu seputar keuangan atau prosedur organisasi?' },
+        { role: 'ai', text: 'Halo! Saya WADASABLE AI. Ada yang bisa saya bantu seputar keuangan atau prosedur organisasi?' },
       ]
     },
   },

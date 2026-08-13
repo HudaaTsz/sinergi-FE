@@ -1,7 +1,7 @@
 <template>
   <div class="max-w-2xl mx-auto flex flex-col h-[calc(100vh-3rem)]">
     <div class="flex items-center justify-between mb-1">
-      <h1 class="text-2xl font-bold dark:text-slate-100">🤖 SINERGI AI Assistant</h1>
+      <h1 class="text-2xl font-bold dark:text-slate-100">🤖 WADASABLE AI Assistant</h1>
       <button @click="chat.reset()" class="text-xs text-gray-400 hover:text-red-500 dark:text-slate-500">
         Reset percakapan
       </button>
@@ -21,7 +21,7 @@
         </div>
         <p v-if="m.sumber?.length" class="text-xs text-gray-400 dark:text-slate-500 mt-1">Sumber: {{ m.sumber.join(', ') }}</p>
       </div>
-      <p v-if="chat.loading" class="text-sm text-gray-400 dark:text-slate-500">SINERGI AI sedang mengetik...</p>
+      <p v-if="chat.loading" class="text-sm text-gray-400 dark:text-slate-500">WADASABLE AI sedang mengetik...</p>
     </div>
 
     <div class="flex gap-2 mb-3 flex-wrap">

@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 px-4 transition-colors">
     <form @submit.prevent="submit" class="bg-white dark:bg-slate-800 shadow-md rounded-xl p-6 sm:p-8 w-full max-w-sm">
-      <h1 class="text-2xl font-bold text-primary-700 dark:text-primary-400 mb-1">SINERGI</h1>
+      <h1 class="text-2xl font-bold text-primary-700 dark:text-primary-400 mb-1">WADASABLE</h1>
       <p class="text-sm text-gray-500 dark:text-slate-400 mb-6">Masuk ke akun organisasi kamu</p>
 
       <div class="mb-4">
